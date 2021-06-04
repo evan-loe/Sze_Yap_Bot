@@ -5,6 +5,8 @@ import os
 from asyncio import sleep
 import json
 
+from cogs.jsonfxn import open_datajson, save_json
+
 path = os.path.dirname(__file__)
 
 async def play_egg(self, ctx, type_: str):
@@ -42,6 +44,14 @@ async def play_egg(self, ctx, type_: str):
     voice.play(source)
     await sleep(8)
     await voice.disconnect()
+    
+    guild_id = str(ctx.guild.id)
+    data = open_datajson('data.json', ctx.guild.id)
+    
+    data[guild_id][str(ctx.author.id)][type_] = \
+        data[guild_id].setdefault('easter_egg', {})\
+            .setdefault(str(ctx.author.id), {}).setdefault(type_, 0) + 1
+    save_json('data.json', data)
 
 
 class EasterEgg(commands.Cog):

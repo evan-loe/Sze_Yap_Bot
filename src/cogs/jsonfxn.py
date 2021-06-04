@@ -2,6 +2,7 @@ import json
 import codecs
 
 
+
 def open_wcjson(path: str, guild_id: int):
     with codecs.open(path, 'r', encoding='utf-8') as f:
         json_file = json.load(f)

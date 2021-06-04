@@ -1,11 +1,15 @@
 import discord
 from embed import EmbedList
 import json
+from os.path import join, dirname, realpath
+import sys
+
+__location__ = realpath(join(sys.path[0], dirname(__file__)))
 
 def create_help_embed(prefix: str='+') -> EmbedList:
     embed_list = EmbedList(message_id=None, type_id=7)
     
-    with open('help.json', 'r') as f:
+    with open(join(__location__, 'help.json'), 'r') as f:
         helpdict = json.load(f)
     
     for page in helpdict:

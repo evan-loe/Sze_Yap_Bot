@@ -4,7 +4,7 @@ from helpfxn import create_help_embed
 from cogs.jsonfxn import open_datajson, save_json
 import discord
 from discord.errors import ClientException, HTTPException
-from discord.player import AudioSource, FFmpegPCMAudio
+from discord.player import FFmpegPCMAudio
 from dotenv import load_dotenv
 from discord.ext import commands
 import os
@@ -29,7 +29,7 @@ import codecs
 from embed import add_to_master, embed_master_list
 
 load_dotenv()
-token = os.getenv("acc_token")
+token = os.getenv("info_token")
 time_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
 cats = ["/ᐠ｡ꞈ｡ᐟ\\", "/ᐠ｡▿｡ᐟ\\*ᵖᵘʳʳ*", "/ᐠ –ꞈ –ᐟ\\",
@@ -38,7 +38,7 @@ bears = ["ʕ •ᴥ•ʔ", "“φʕ•ᴥ•oʔ", "ʕ/　·ᴥ·ʔ/", "ʕノ•�
 Emoji = namedtuple('Emoji', ["l_arrow", "r_arrow", "sound", "d_arrow",
                              "u_arrow", "books"])
 emoji_list = Emoji('⬅️', '➡️', '🔊', '⬇️', '⬆️', '📚')
-filepath = os.getcwd()
+filepath = os.path.dirname(__file__)
 intents = discord.Intents.default()
 intents.members = True
 intents.reactions = True
@@ -55,7 +55,8 @@ def get_prefix(client, message):
             return '+'
         else:
             try:
-                return prefixes[str(message.guild.id)]
+                # return prefixes[str(message.guild.id)]
+                return '/'
             except KeyError:
                 prefixes[str(message.guild.id)] = '+'
                 save_json(prefix_path, prefixes)
@@ -131,7 +132,7 @@ def add_spaces(search_term):
 async def not_found(messageable: discord.abc.Messageable):
     embed = Embed(
         title="Sorry, I've searched far and wide and couldn't find anything")
-    file = discord.File('cat_404.jpg')
+    file = discord.File('pictures/cat_404.jpg')
     embed.set_image(url="attachment://cat_404.jpg")
     await messageable.send(embed=embed, file=file)
 
@@ -150,7 +151,7 @@ async def on_ready():
     with codecs.open(os.path.join(filepath, 'stephen-li.json'), 'r', 
                      encoding='utf-8') as f:
         stephen_li = json.load(f)
-    with open('canto_freq_list.csv', mode='r') as f:
+    with open('src/canto_freq_list.csv', mode='r') as f:
         reader = csv.reader(f)
         freq = {rows[0]:rows[3] for rows in reader}
     print(f'{client.user} has connected to Discord!')
@@ -346,7 +347,7 @@ async def gc(ctx, *, args):
         embed = Embed(
             title="Sorry, I searched far and wide and couldn't find anything",
             colour=discord.Colour.from_rgb(255, 159, 56))
-        file = discord.File('cat_404.jpg')
+        file = discord.File('pictures/cat_404.jpg')
         embed.set_image(url="attachment://cat_404.jpg")
         await ctx.send(embed=embed, file=file)
         return
@@ -481,7 +482,7 @@ async def sl(ctx, *, args):
     if len(search_result) == 0:
         embed = Embed(
             title="Sorry, I searched far and wide and couldn't find anything")
-        file = discord.File('cat_404.jpg')
+        file = discord.File('pictures/cat_404.jpg')
         embed.set_image(url="attachment://cat_404.jpg")
         await ctx.send(embed=embed, file=file)
         return

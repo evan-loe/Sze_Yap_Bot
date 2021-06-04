@@ -1,7 +1,7 @@
 from PIL import Image, ImageFont, ImageDraw, ImageOps
 import discord
 from discord.ext import commands
-from os.path import dirname, join
+from os.path import dirname, join, realpath
 import os
 import random
 import json
@@ -11,9 +11,11 @@ from discord import File, Embed, Color
 import asyncio
 import re
 from textwrap import wrap
+import sys
+
+__location__ = realpath(join(sys.path[0], dirname(__file__)))
 
 
-path = join(dirname(__file__))
 admin = True
 
 def ordinal(n):
@@ -58,7 +60,7 @@ def add_text(image: Image, en: str, ch: str, name: str, num_mem: int,
              colour: tuple) -> Image:
     im_w, im_h = image.size
     title_font = ImageFont.truetype(
-            font=join(path, 'fonts', 'NotoSans-hinted', 'NotoSans-Black.ttf'), 
+            font=join(__location__, 'fonts', 'NotoSans-hinted', 'NotoSans-Black.ttf'), 
             size=85*im_h//900)
     draw = ImageDraw.Draw(image)
     offset = 350*im_h//900
@@ -70,7 +72,7 @@ def add_text(image: Image, en: str, ch: str, name: str, num_mem: int,
         offset += title_font.getsize(line)[1]
     
     title_font = ImageFont.truetype(
-            font=join(path, 'fonts', 'stkaiti.ttf'), 
+            font=join(__location__, 'fonts', 'stkaiti.ttf'), 
             size=130*im_h//900)
     margin = (im_w - title_font.getlength(ch))//2
     ImageDraw.Draw(image).text(
@@ -79,7 +81,7 @@ def add_text(image: Image, en: str, ch: str, name: str, num_mem: int,
     offset += title_font.getsize(ch)[1] - 10*image.size[1]//900
     
     title_font = ImageFont.truetype(
-            font=join(path, 'fonts', 'NotoSans-hinted', 'NotoSans-Black.ttf'), 
+            font=join(__location__, 'fonts', 'NotoSans-hinted', 'NotoSans-Black.ttf'), 
             size=70*im_h//900)
     margin = (im_w - title_font.getlength(name + '!'))//2
     ImageDraw.Draw(image).text(
@@ -93,7 +95,7 @@ def add_text(image: Image, en: str, ch: str, name: str, num_mem: int,
 def add_member_count(image: Image, member_count: int, colour: tuple) -> Image:
     
     title_font = ImageFont.truetype(
-            font=join(path, 'fonts', 'NotoSans-hinted', 'NotoSans-Black.ttf'), 
+            font=join(__location__, 'fonts', 'NotoSans-hinted', 'NotoSans-Black.ttf'), 
             size=70*image.size[1]//900)
     text = f"You are our {ordinal(member_count)} member!"
     offset = image.size[1] - title_font.getsize(text)[1] - 15*image.size[1]//900
@@ -104,22 +106,22 @@ def add_member_count(image: Image, member_count: int, colour: tuple) -> Image:
 
 async def create_image(member):
     welcome = open_wcjson(
-            'welcome.json', member.guild.id)[str(member.guild.id)]
+            join(__location__, 'welcome.json'), member.guild.id)[str(member.guild.id)]
 
     member_cnt = member.guild.member_count
-    temp = join(path, 'temp')
+    temp = join(__location__, 'temp')
     pfp_path = join(temp, f"{member.id}.png")
     await member.avatar_url.save(pfp_path)
     
     if welcome['hoisan_pics'] is True:
         bg_file = random.choice(
-            os.listdir(join(path, 'welcome_images', 'hoisan')))
-        wel_img = Image.open(join(path, 'welcome_images', 'hoisan', bg_file))
+            os.listdir(join(__location__, 'welcome_images', 'hoisan')))
+        wel_img = Image.open(join(__location__, 'welcome_images', 'hoisan', bg_file))
         print(bg_file)
     else:
         bg_file = random.choice(
-            os.listdir(join(path, 'welcome_images', 'reg')))
-        wel_img = Image.open(join(path, 'welcome_images', 'reg', bg_file))
+            os.listdir(join(__location__, 'welcome_images', 'reg')))
+        wel_img = Image.open(join(__location__, 'welcome_images', 'reg', bg_file))
     
     dim = 300*wel_img.size[1]//900
     
@@ -144,7 +146,7 @@ class WelcomeImage(commands.Cog):
     async def testwcmsg(self, ctx):
         member = ctx.author
         welcome = open_wcjson(
-            'welcome.json', member.guild.id)[(str(member.guild.id))]
+            join(__location__, 'welcome.json'), member.guild.id)[(str(member.guild.id))]
         img_path = await create_image(member)
         file = File(img_path)
         embed = Embed(colour=Color.from_rgb(77, 179, 247))
@@ -161,7 +163,7 @@ class WelcomeImage(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         welcome = open_wcjson(
-            'welcome.json', member.guild.id)[(str(member.guild.id))]
+            join(__location__, 'welcome.json'), member.guild.id)[(str(member.guild.id))]
         if welcome['showwcmsg'] is False:
             return
         img_path = await create_image(member)
@@ -188,7 +190,7 @@ class WelcomeImage(commands.Cog):
                 and message.author == ctx.author\
                 and re.match(r'\<#[0-9]{18}\>$', message.content)
 
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         
         await ctx.send(f"What is the channel you would like to send the "
                        f"welcome message in?")
@@ -204,7 +206,7 @@ class WelcomeImage(commands.Cog):
         config[str(ctx.guild.id)]['channel'] = int(
             message.content.replace('<#', '').replace('>', ''))
         config[str(ctx.guild.id)]['message'] = args
-        with open('welcome.json', 'w', encoding='utf-8') as f:
+        with open(join(__location__, 'welcome.json'), 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=4, ensure_ascii=False)
         await ctx.send("Ok, welcome message configured!")
     
@@ -214,18 +216,18 @@ class WelcomeImage(commands.Cog):
         if len(args) > 60:
             await ctx.send("Sorry that title is too long!")
             return
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         config[str(ctx.guild.id)]['en_title'] = args.replace('#_newline', '\n')
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
         await ctx.send("Ok, English title for welcome message configured!")
     
     
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def setchtitle(self, ctx, *, args):
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         config[str(ctx.guild.id)]['ch_title'] = args
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
         await ctx.send("Ok, Chinese title for welcome message configured!")
     
     @commands.command()
@@ -235,24 +237,24 @@ class WelcomeImage(commands.Cog):
             await ctx.send("Please specify a text channel!")
             return
         
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         config[str(ctx.guild.id)]['channel'] = channel.id
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
         await ctx.send("Ok, channel to send welcome message configured!")
     
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def delwcmsg(self, ctx):
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         config.pop(str(ctx.guild.id), None)
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
         await ctx.send(
             f"Ok, welcome message deleted for the server: {ctx.guild.name}!")
     
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def sendwcmsg(self, ctx, show: str=""):
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         if show.lower() == 'true' or show.lower() == 'on':
             config[str(ctx.guild.id)]['showwcmsg'] = True
             await ctx.send("Ok, I will send a wc msg once someone joins!")
@@ -262,13 +264,13 @@ class WelcomeImage(commands.Cog):
         else:
             await ctx.send("Please specify true/false or on/off!")
             return
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
 
 
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def showpfp(self, ctx, pfp: str=""):
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         if pfp.lower() == "true":
             config[str(ctx.guild.id)]['pfp'] = True
             await ctx.send("Set showing pfp to true!")  
@@ -278,12 +280,12 @@ class WelcomeImage(commands.Cog):
         else:
             await ctx.send("Please specify true or false!")
             return
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
     
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def hoisanwcpics(self, ctx, pic: str=""):
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         if pic.lower() == "true":
             config[str(ctx.guild.id)]['hoisan_pics'] = True
             await ctx.send("Set showing hoisan pictures to true!")  
@@ -293,14 +295,14 @@ class WelcomeImage(commands.Cog):
         else:
             await ctx.send("Please specify true or false!")
             return
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
     
     @commands.command(
         aliases=['title_color', 'wccolor', 'wccolour', 'setcolor',\
             'setcolour'])
     @commands.has_permissions(administrator=True)
     async def title_colour(self, ctx, *, args: str=""):
-        config = open_wcjson('welcome.json', ctx.guild.id)
+        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
         args = args.lower()
         print(args)
         match = re.search(
@@ -324,7 +326,7 @@ class WelcomeImage(commands.Cog):
             await ctx.send('Please enter a valid colour!')
             return
         await ctx.send(f"Set colour to {args}!")
-        save_json('welcome.json', config)
+        save_json(join(__location__, 'welcome.json'), config)
         
  
 def setup(client):

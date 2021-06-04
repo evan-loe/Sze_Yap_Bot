@@ -1,13 +1,12 @@
 from embed import EmbedList, add_to_master
 from discord.ext import commands
 import discord
-from os.path import join, dirname
+from os.path import join, dirname, realpath
 from cogs.jsonfxn import open_datajson, save_json
-
+import sys
 
 emoji_list = ('⬅️', '➡️', '🔊', '⬇️', '⬆️', '📚')
-filepath = dirname(__file__)
-
+__location__ = realpath(join(sys.path[0], dirname(__file__)))
 class CommandCount(commands.Cog):
     
     def __init__(self, client):
@@ -20,7 +19,7 @@ class CommandCount(commands.Cog):
             guild_id = 'dm'
         else:
             guild_id = str(ctx.guild.id)
-        data = open_datajson('data.json', guild_id)[str(ctx.guild.id)]['command_count']
+        data = open_datajson(join(__location__, 'data.json'), guild_id)[str(ctx.guild.id)]['command_count']
         try:
             for command in data.items():
                 text = f'***{command[0]}***\n```'
@@ -52,7 +51,7 @@ class CommandCount(commands.Cog):
         channel_id = str(channel.id)
         command = ctx.command.name
         
-        data = open_datajson('data.json', guild_id)
+        data = open_datajson(join(__location__, 'data.json'), guild_id)
         com_count = data[guild_id]['command_count']
         try:
             if command not in com_count:
@@ -66,7 +65,7 @@ class CommandCount(commands.Cog):
             return
 
         data[guild_id]['command_count'] = com_count
-        save_json('data.json', data)
+        save_json(join(__location__, 'data.json'), data)
 
 
 

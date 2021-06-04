@@ -1,21 +1,20 @@
-from os import getcwd
 import requests
-from os import path, getcwd
+from os.path import join, isfile, dirname
 import json
-filepath = getcwd()
+filepath = dirname(__file__)
 
 
 def in_local(word):
     word = word.replace(' ', '-').lower()
-    file = path.join(filepath, 'synonyms', f'{word}.json')
-    if path.isfile(file) is True:
+    file = join(filepath, 'synonyms', f'{word}.json')
+    if isfile(file) is True:
         with open(file, 'r') as f:
             return json.load(f), True
     return {}, False
 
 
 def save_to_local(word, dict_):
-    file = path.join(filepath, 'synonyms', f'{word}.json')
+    file = join(filepath, 'synonyms', f'{word}.json')
     with open(file, 'w+') as f:
         json.dump(dict_, f)
 
