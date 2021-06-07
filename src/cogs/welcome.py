@@ -15,7 +15,6 @@ import sys
 
 __location__ = realpath(join(sys.path[0], dirname(__file__)))
 
-
 admin = True
 
 def ordinal(n):

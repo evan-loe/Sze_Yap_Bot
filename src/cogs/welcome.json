@@ -1,18 +1,4 @@
 {
-    "758544905822797864": {
-        "showwcmsg": false,
-        "en_title": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
-        "ch_title": "你需要洗个澡",
-        "pfp": true,
-        "message": "Helooooooooooooooooooooooooooooooooo hi there lol welcome to server plz dont leaveeee",
-        "channel": 758544905822797868,
-        "hoisan_pics": true,
-        "text_colour": [
-            255,
-            255,
-            255
-        ]
-    },
     "847959807889637446": {
         "showwcmsg": true,
         "en_title": "Welcome to the Du-Ein Support Server!",
@@ -62,6 +48,20 @@
         "pfp": true,
         "message": "Welcome to the Sze Yap/Taishanese server, @_mention! Please press on <#840629744143958016> to gain access to the rest of the server! 欢迎来到四邑方言伺服器  @_mention！唔该去睇下 <#840629744143958016>  ！<@&735602296519655475>",
         "channel": 716767205676548217,
+        "hoisan_pics": true,
+        "text_colour": [
+            255,
+            255,
+            255
+        ]
+    },
+    "758544905822797864": {
+        "showwcmsg": true,
+        "en_title": "WELCOME BOIS AND GALS",
+        "ch_title": "need bugspray! spider! gummy!",
+        "pfp": true,
+        "message": "WELCOME TO THIS SERVER WE LOVE U",
+        "channel": 847154243957161994,
         "hoisan_pics": true,
         "text_colour": [
             255,

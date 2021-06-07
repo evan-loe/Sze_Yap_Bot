@@ -6,11 +6,11 @@ import sys
 
 __location__ = realpath(join(sys.path[0], dirname(__file__)))
 
-def create_help_embed(prefix: str='+') -> EmbedList:
+def create_help_embed(prefix: str='+', version: str='main_help') -> EmbedList:
     embed_list = EmbedList(message_id=None, type_id=7)
     
     with open(join(__location__, 'help.json'), 'r') as f:
-        helpdict = json.load(f)
+        helpdict = json.load(f)[version]
     
     for page in helpdict:
         page = helpdict[page]

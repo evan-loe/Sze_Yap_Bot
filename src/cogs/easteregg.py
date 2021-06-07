@@ -1,21 +1,23 @@
+import discord
 from discord.ext import commands
 from discord.utils import get
 from discord.player import FFmpegPCMAudio
-import os
+from os.path import join, dirname
 from asyncio import sleep
-import json
-
+from PIL import Image, ImageDraw, ImageFont, ImageSequence
+from textwrap import wrap
+import io
 from cogs.jsonfxn import open_datajson, save_json
 
-path = os.path.dirname(__file__)
+path = dirname(__file__)
 
 async def play_egg(self, ctx, type_: str):
     if type_ == 'gummybear':
-        file = os.path.join(path, 'easter_eggs', 'gummy_bear.mp3')
+        file = join(path, 'easter_eggs', 'gummy_bear.mp3')
     elif type_ == 'pig':
-        file = os.path.join(path, 'easter_eggs', 'pig.mp3')
+        file = join(path, 'easter_eggs', 'pig.mp3')
     elif type_ == 'meow':
-        file = os.path.join(path, 'easter_eggs', 'meow.mp3')
+        file = join(path, 'easter_eggs', 'meow.mp3')
     
     if not ctx.author.voice:
         return
@@ -42,17 +44,26 @@ async def play_egg(self, ctx, type_: str):
 
     source = FFmpegPCMAudio(file)
     voice.play(source)
-    await sleep(8)
-    await voice.disconnect()
+    
     
     guild_id = str(ctx.guild.id)
-    data = open_datajson('data.json', ctx.guild.id)
+    data = open_datajson(join(path, 'data.json'), ctx.guild.id)
     
-    data[guild_id][str(ctx.author.id)][type_] = \
+    data[guild_id]['easter_egg'][str(ctx.author.id)][type_] = \
         data[guild_id].setdefault('easter_egg', {})\
             .setdefault(str(ctx.author.id), {}).setdefault(type_, 0) + 1
-    save_json('data.json', data)
-
+    save_json(join(path, 'data.json'), data)
+    egg_num = 3
+    if len(data[guild_id]['easter_egg'][str(ctx.author.id)].keys()) == egg_num:
+        data[guild_id]['easter_egg'][str(ctx.author.id)]['found_all'] = True
+        save_json(join(path, 'data.json'), data)
+        
+        text = f"Congrats {ctx.author.mention}! You found all {egg_num} "\
+        f"easter eggs!"
+        file = discord.File(join(path, '..', 'pictures', 'celebration.gif'))
+        await ctx.author.send(content=text, file=file)
+    await sleep(8)
+    await voice.disconnect()
 
 class EasterEgg(commands.Cog):
     def __init__(self, client):

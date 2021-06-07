@@ -104,9 +104,7 @@ def simple_chinese(chinese_word):
         pat=chinese_word, regex=False, na=False)]
 
 
-def multi_chinese(chinese_word):
-    return hed[hed['英译与词句'].str.contains(
-        pat=chinese_word, regex=False, na=False)]
+
 
 
 def pinyin(pinyin_word):
@@ -216,14 +214,16 @@ def num_to_accent(input_string):
     return " ".join(return_list)
 
 
-
-
 def single_multi_search(eng_word):
     eng_word = f"\\b{eng_word}\\b"
     search_result = hed[hed["英译与词句"].str.contains(
         pat=eng_word, case=False, regex=True, na=False)]
     return process_defn(search_result)
 
+def multi_chinese(chinese_word):
+    search_result = hed[hed['英译与词句'].str.contains(
+        pat=chinese_word, regex=False, na=False)]
+    return process_defn(search_result)
 
 def rand_word():
     return process_defn(hed[(hed['英译与词句'].str.len() > 30)].sample(2))

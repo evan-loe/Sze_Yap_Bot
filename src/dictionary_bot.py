@@ -27,9 +27,10 @@ from PyDictionary import PyDictionary
 from synonym import synonym
 import codecs
 from embed import add_to_master, embed_master_list
+from cogs.jsonfxn import get_prefix
 
 load_dotenv()
-token = os.getenv("info_token")
+token = os.getenv("token")
 time_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
 cats = ["/ᐠ｡ꞈ｡ᐟ\\", "/ᐠ｡▿｡ᐟ\\*ᵖᵘʳʳ*", "/ᐠ –ꞈ –ᐟ\\",
@@ -43,23 +44,6 @@ intents = discord.Intents.default()
 intents.members = True
 intents.reactions = True
 dictionary = PyDictionary()
-
-
-
-
-def get_prefix(client, message):
-    prefix_path = os.path.join(filepath, 'cogs', 'prefixes.json')
-    with open(prefix_path, 'r') as f:
-        prefixes = json.load(f)
-        if isinstance(message.channel, discord.channel.DMChannel):
-            return '+'
-        else:
-            try:
-                # return prefixes[str(message.guild.id)]
-                return '/'
-            except KeyError:
-                prefixes[str(message.guild.id)] = '+'
-                save_json(prefix_path, prefixes)
 
 client = commands.Bot(
     command_prefix=get_prefix, case_insensitive=True, intents=intents,
@@ -86,35 +70,23 @@ tone_to_num = {
 @client.command()
 @commands.has_permissions(administrator=True)
 async def adminhelp(ctx):
-    text = (
-        "```Help commands for admins!!\n\n"
-        "setwcmsg [your message]-sets welcome msg for when member joins\n\n"
-        "setentitle [your title]-sets title for banner when member joins\n\n"
-        "setchtitle [your ch title]-sets ch title below english one\n\n"
-        "setwcchannel [#your_channel]-sets the welcome msgs are sent to\n\n"
-        "delwcmsg-deletes configured welcome message\n\n"
-        "sendwcmsg [true/false or on/off]-turn welcome message on or off\n\n"
-        "showpfp [true/false]-toggle showing pfp of member on banner\n\n"
-        "hoisanwcpics [true/false]-toggle using pics from Hoisan or random "
-        "pictures for the welcome banner\n\n"
-        "title_colour [red/green/blue/yellow/white/green/255, 255, 255 <- "
-        "This is rgb value] - set text colour for welcome banner```\n")
-    embed = Embed(title="Admin-only commands", description=text,
-                          colour=Color.from_rgb(232, 194, 58))
-    await ctx.send(embed=embed)
+    embed_list = create_help_embed(get_prefix(client, ctx.message), 'admin_help')
+    
+    sent_embed = await ctx.send(embed=page_num(embed_list).first_page())
+    add_to_master(embed_list, sent_embed)
+    for emoji in emoji_list[:2]:
+        await sent_embed.add_reaction(emoji)
 
 
-@client.command()
-async def help(ctx):
+@client.command(aliases=['help'])
+async def commands(ctx):
     embed_list = create_help_embed(get_prefix(client, ctx.message))
     
     sent_embed = await ctx.send(embed=page_num(embed_list).first_page())
     add_to_master(embed_list, sent_embed)
     for emoji in emoji_list[:2]:
         await sent_embed.add_reaction(emoji)
-    if len(embed_list.curr_page().content.fields) > 2:
-        await sent_embed.add_reaction(emoji_list[3])
-        await sent_embed.add_reaction(emoji_list[4])
+
 
     
 
@@ -132,7 +104,7 @@ def add_spaces(search_term):
 async def not_found(messageable: discord.abc.Messageable):
     embed = Embed(
         title="Sorry, I've searched far and wide and couldn't find anything")
-    file = discord.File('pictures/cat_404.jpg')
+    file = discord.File(os.path.join(filepath, 'pictures', 'cat_404.jpg'))
     embed.set_image(url="attachment://cat_404.jpg")
     await messageable.send(embed=embed, file=file)
 
@@ -140,7 +112,8 @@ async def not_found(messageable: discord.abc.Messageable):
 @client.event
 async def on_ready():
     initial_extensions = ['cogs.command_prefix', 'cogs.error_handling', 
-                          'cogs.welcome', 'cogs.easteregg', 'cogs.command_count']
+                          'cogs.welcome', 'cogs.easteregg',
+                          'cogs.command_count', 'cogs.roles']
     for cog in initial_extensions:
         client.load_extension(cog)
         
@@ -301,7 +274,7 @@ async def on_reaction_remove(reaction, user):
 
 
 def remove_format(string):
-    return re.sub(r'[⁰¹²³⁴⁵⁶⁷⁸⁹]|\<wr\.\>\s|<又>\s|<台>|<topo.>\s', '', string)
+    return re.sub(r'[⁰¹²³⁴⁵⁶⁷⁸⁹]|\<wr\.\>\s|<又>\s|<台>\s|<topo.>\s', '', string)
 
 @client.command()
 async def gc(ctx, *, args):
@@ -342,12 +315,13 @@ async def gc(ctx, *, args):
         search_result = single_multi_search(search).sort_values(
             by=['英译与词句'], key=sort, ascending=True)
         disp_id = 4
+    print(search_result)
 
     if search_result.empty:
         embed = Embed(
             title="Sorry, I searched far and wide and couldn't find anything",
             colour=discord.Colour.from_rgb(255, 159, 56))
-        file = discord.File('pictures/cat_404.jpg')
+        file = discord.File(os.path.join(filepath, 'pictures', 'cat_404.jpg'))
         embed.set_image(url="attachment://cat_404.jpg")
         await ctx.send(embed=embed, file=file)
         return
@@ -482,7 +456,7 @@ async def sl(ctx, *, args):
     if len(search_result) == 0:
         embed = Embed(
             title="Sorry, I searched far and wide and couldn't find anything")
-        file = discord.File('pictures/cat_404.jpg')
+        file = discord.File(os.path.join(filepath, 'pictures', 'cat_404.jpg'))
         embed.set_image(url="attachment://cat_404.jpg")
         await ctx.send(embed=embed, file=file)
         return
@@ -769,10 +743,14 @@ async def on_message(message):
         if len(message.embeds) > 0:
             await command_channel.send(embed=message.embeds[0], content=f"{message.author} sent an embed")
         elif len(message.attachments) > 0:
-            for attachment in message.attachements:
-                await command_channel.send(file=attachment)
+            for attachment in message.attachments:
+                file = await attachment.to_file()
+                await command_channel.send(
+                    content=f"{message.author} sent a file", file=file)
         if message.content != "":
-            await command_channel.send(f"{message.author} ({message.author.id}) said {message.content}")
+            await command_channel.send(
+                f"{message.author} ({message.author.id}) said "
+                f"{message.content}")
     await client.process_commands(message)
 
 

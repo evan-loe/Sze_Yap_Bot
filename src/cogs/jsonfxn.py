@@ -1,6 +1,13 @@
 import json
 import codecs
+from os.path import join, dirname
+from discord import channel
 
+filepath = dirname(__file__)
+
+def save_json(path: str, json_file: dict):
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(json_file, f, indent=4, ensure_ascii=False)
 
 
 def open_wcjson(path: str, guild_id: int):
@@ -20,10 +27,6 @@ def open_wcjson(path: str, guild_id: int):
         save_json(path, json_file)
     return json_file
 
-def save_json(path: str, json_file: dict):
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(json_file, f, indent=4, ensure_ascii=False)
-
 
 def open_datajson(path: str, guild_id: int):
     guild_id = str(guild_id)
@@ -39,6 +42,18 @@ def open_datajson(path: str, guild_id: int):
                 'audio': {}
             }
         }
-    with open(path, 'w') as f:
-        json.dump(data, f)
+        save_json(path, data)
     return data
+
+def get_prefix(client, message):
+    prefix_path = join(filepath, 'prefixes.json')
+    with open(prefix_path, 'r') as f:
+        prefixes = json.load(f)
+        if isinstance(message.channel, channel.DMChannel):
+            return '+'
+        else:
+            try:
+                return prefixes[str(message.guild.id)]
+            except KeyError:
+                prefixes[str(message.guild.id)] = '+'
+                save_json(prefix_path, prefixes)
