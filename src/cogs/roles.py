@@ -160,6 +160,9 @@ class CustomRoles(commands.Cog):
         def check(reaction, user):
             return reaction.message == sent_message
 
+        def check_msg(message):
+            return message.author == ctx.author
+
         data = open_datajson(data_path, ctx.guild.id)
         guild_id = str(ctx.guild.id)
         if 'roles' not in data[guild_id].keys():
@@ -170,18 +173,26 @@ class CustomRoles(commands.Cog):
                 'msg_id': 0, 
                 'all_e': ''
             }
-        sent_message = await ctx.send("Please react to this message with the emoji you want ")
+        sent_message = await ctx.send("Please react to this message with the emoji you want")
         reaction, user = await self.client.wait_for('reaction_add', timeout=60, check=check)
         emoji = reaction.emoji
+        
+        
+        await ctx.send(f"Ok, I added a role to the page ***{page_name}***. Use the `send` command to send it!\nReact to this message with any emoji if you want to add a custom description!")
+        reaction, user = await self.client.wait_for('reaction_add', timeout=60, check=check)
+        await ctx.send("What is the custom message you want?")
+        message = None
+        # add try except for timeout
+        message = await self.client.wait_for('message', timeout=60, check=check_msg)
         if isinstance(emoji, discord.Emoji):
             if not reaction.emoji.is_usable() and not reaction.emoji.available:
                 await ctx.send("Sorry, I can't seem to use that emoji")
                 return
-            data[guild_id]['roles'][page_name]['e_list'].append((role.id, emoji.id))
+            data[guild_id]['roles'][page_name]['e_list'].append((role.id, emoji.id, message))
         else:
-            data[guild_id]['roles'][page_name]['e_list'].append((role.id, emoji))
+            data[guild_id]['roles'][page_name]['e_list'].append((role.id, emoji, message))
         save_json(data_path, data)
-        await ctx.send(f"Ok, I added a role to the page ***{page_name}***. Use the `send` command to send it!")
+        
         
     @commands.has_permissions(administrator=True)
     @rolepage.group(name='remove', invoke_without_command=True)
@@ -222,11 +233,14 @@ class CustomRoles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if payload.member.bot:
+        try:
+            if payload.guild_id is None or payload.member.bot:
+                return
+        except AttributeError:
             return
         guild_id = str(payload.guild_id)
         data = open_datajson(data_path, guild_id)[guild_id]
-        if payload.message_id not in data['role_msg_ids']:
+        if payload.message_id not in data.setdefault('role_msg_ids', []):
             return
         emoji = payload.emoji
         if emoji.is_custom_emoji():
@@ -238,6 +252,9 @@ class CustomRoles(commands.Cog):
             all_emoji = data['all_roles']['emoji']
             if all_emoji == emoji and data['all_roles']['msg_id'] == payload.message_id:
                 add_all = True
+        except KeyError:
+            pass
+        finally:
             for page in data['roles'].values():
                 if page['msg_id'] != payload.message_id and not add_all:
                     continue
@@ -248,8 +265,6 @@ class CustomRoles(commands.Cog):
                         await payload.member.add_roles(role_to_add,
                             reason=f"{payload.member} reacted to my message",
                             atomic=True)
-        except KeyError:
-            pass
 
 
     @commands.Cog.listener()
@@ -264,12 +279,14 @@ class CustomRoles(commands.Cog):
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
+        if payload.guild_id is None or payload.member.bot:
+            return
         guild_id = str(payload.guild_id)
         guild = self.client.get_guild(int(guild_id))
         member = await guild.fetch_member(payload.user_id)
         
         data = open_datajson(data_path, guild_id)[guild_id]
-        if payload.message_id not in data['role_msg_ids']:
+        if payload.message_id not in data.setdefault('role_msg_ids', []):
             return
         emoji = payload.emoji
         if emoji.is_custom_emoji():
@@ -281,20 +298,19 @@ class CustomRoles(commands.Cog):
             all_emoji = data['all_roles']['emoji']
             if all_emoji == emoji and data['all_roles']['msg_id'] == payload.message_id:
                 add_all = True
+        except KeyError:
+            pass
+        finally:
             for page in data['roles'].values():
                 if page['msg_id'] != payload.message_id and not add_all:
                     continue
                 for role in page['e_list']:
                     if role[1] == emoji or add_all:
-                        role_to_rem = guild.get_role(role[0])
-                        try:
-                            await member.remove_roles(role_to_rem,
-                                reason=f"{member} reacted to my message",
-                                atomic=True)
-                        except HTTPException:
-                            pass
-        except KeyError:
-            pass
+                        role_to_add = self.client.get_guild(
+                            payload.guild_id).get_role(role[0])
+                        await payload.member.add_roles(role_to_add,
+                            reason=f"{payload.member} reacted to my message",
+                            atomic=True)
                         
 
     # @rolepage.error

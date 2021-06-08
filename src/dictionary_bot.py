@@ -88,7 +88,6 @@ async def commands(ctx):
         await sent_embed.add_reaction(emoji)
 
 
-    
 
 def add_spaces(search_term):
     if isinstance(search_term, list):
@@ -201,7 +200,7 @@ async def reaction_handling(reaction, user):
             source = FFmpegPCMAudio(audio_path)
             try:
                 voice.play(source)
-            except ClientException:
+            except (ClientException, AttributeError):
                 await reaction.message.channel.send(
                     "Sorry, I can't connect play the audio")
                 return
