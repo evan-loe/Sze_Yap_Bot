@@ -46,7 +46,7 @@
         "en_title": "Welcome to the Sze Yap/\nTaishanese server",
         "ch_title": "欢迎来到四邑方言伺服器",
         "pfp": true,
-        "message": "Welcome to the Sze Yap/Taishanese server, @_mention! Please press on <#840629744143958016> to gain access to the rest of the server! 欢迎来到四邑方言伺服器  @_mention！唔该去睇下 <#840629744143958016>  ！<@&735602296519655475>",
+        "message": "Welcome to the Sze Yap/Taishanese server {user}. You are our {membernum} member! Please press on <#840629744143958016>  to gain access to the rest of the server! 欢迎来到四邑方言伺服器 {user}！唔该去睇下 <#840629744143958016> ！<@&735602296519655475>",
         "channel": 716767205676548217,
         "hoisan_pics": true,
         "text_colour": [

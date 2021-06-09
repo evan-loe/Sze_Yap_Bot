@@ -30,7 +30,7 @@ from embed import add_to_master, embed_master_list
 from cogs.jsonfxn import get_prefix
 
 load_dotenv()
-token = os.getenv("token")
+token = os.getenv("info_token")
 time_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
 cats = ["/ᐠ｡ꞈ｡ᐟ\\", "/ᐠ｡▿｡ᐟ\\*ᵖᵘʳʳ*", "/ᐠ –ꞈ –ᐟ\\",
@@ -147,7 +147,7 @@ async def timeout(seconds, voice):
 
 
 async def reaction_handling(reaction, user):
-    if user.bot:
+    if user.bot or reaction.message.author.id != client.user.id:
         return
     direction = 0
     selection = 0
@@ -355,9 +355,24 @@ async def gc(ctx, *, args):
         elif disp_id == 2:
             for index, row in search_result.iterrows():
                 description = remove_format(row['英译与词句'])
+                
+                pin_num = ""
+                try:
+                    pin_num = row['p.y.'].split(" or ")
+                    for pin_index, ping in enumerate(pin_num):
+                        pin_num[pin_index] = "-".join([re.sub(r'([1-9]+)', lambda x: num_to_tone.get(
+                            x.group(), x.group()), pin) for pin in ping.split('-')])
+                except (TypeError, AttributeError):
+                    print(f"Error on pinyin {row}")
+                    pass
+                embed_name = f"{' or '.join(pin_num)}-{row['繁']}"
+                if not row['简'] is np.nan:
+                    embed_name += f"/{row['简']}"
+                embed_name = remove_format(embed_name)
+                
                 embed = Embed(
                     title=f'Words matching "{search}"',
-                    description=f"```{description}```",
+                    description=f"{embed_name}\n```{description}```",
                     colour=Color.from_rgb(110, 162, 252))
                 add_credit(embed, embed_list, 1)
                 embed_list.add_page(embed=embed, audio=[],

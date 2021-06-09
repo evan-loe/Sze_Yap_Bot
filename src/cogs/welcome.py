@@ -12,6 +12,9 @@ import asyncio
 import re
 from textwrap import wrap
 import sys
+from datetime import datetime
+
+
 
 __location__ = realpath(join(sys.path[0], dirname(__file__)))
 
@@ -152,8 +155,9 @@ class WelcomeImage(commands.Cog):
         embed.set_image(url=f"attachment://{member.id}_edited.png")
         if welcome['message'] != '':
             await ctx.send(
-                welcome['message'].replace('@_mention', member.mention)\
-                    .replace('@member#', ordinal(member.guild.member_count)),
+                welcome['message'].format(
+                    user=member.mention,
+                    membernum=ordinal(member.guild.member_count)),
                 file=file, embed=embed)
         else:
             await ctx.send(file=file, embed=embed)
@@ -172,14 +176,42 @@ class WelcomeImage(commands.Cog):
         try:
             channel = self.client.get_channel(id=welcome['channel'])
             await channel.send(
-                welcome['message'].replace('@_mention', member.mention)\
-                    .replace(
-                        '@member#', ordinal(member.guild.member_count)), 
+                welcome['message'].format(
+                    user=member.mention,
+                    membernum=ordinal(member.guild.member_count)),
                 file=file, embed=embed)
         except TypeError:
             return
+        finally:
+            try:
+                acc_age = datetime.utcnow() - member.created_at
+                if acc_age.total_seconds < 60:
+                    data = open_wcjson(join(__location__, 'data.json'), member.guild.id)
+                    channel = member.guild.get_channel(data[str(member.guild.id)]['welcome_warn'])
+                    embed = discord.Embed(title="LOL its a sus acount, at least i think it is...")
+                    embed.add_field(
+                        name=member,
+                        value=f"Joined: {datetime.utcnow()} UTC\n"
+                              f"Created: {member.created_at} UTC")
+                    embed.add_field(name='Account Age', value=acc_age)
+                    await channel.send(embed=embed)
+            except KeyError:
+                pass
+            
+    @commands.command()
+    @commands.has_permissions(administrator=admin)
+    async def setsuswarning(self, ctx, warn_state: bool, channel: discord.TextChannel=None):
+        data = open_wcjson(join(__location__, 'data.json'), ctx.guild.id)
+        
+        if warn_state:
+            data[str(ctx.guild.id)].setdefault('welcome_warn', "")
+            data[str(ctx.guild.id)]['welcome_warn'] = channel.id
+        else:
+            data[str(ctx.guild.id)].pop('welcome_warn', None)
+        save_json(join(__location__, 'data.json'), data)
+        await ctx.send(f"Ok, I set sus warning to {warn_state}")
 
-    
+
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def setwcmsg(self, ctx, *, args):

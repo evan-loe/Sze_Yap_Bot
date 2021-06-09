@@ -53,7 +53,8 @@ def get_prefix(client, message):
             return '+'
         else:
             try:
-                return prefixes[str(message.guild.id)]
+                # return prefixes[str(message.guild.id)]
+                return '/'
             except KeyError:
                 prefixes[str(message.guild.id)] = '+'
                 save_json(prefix_path, prefixes)

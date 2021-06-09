@@ -1,4 +1,6 @@
+from logging import CRITICAL
 import discord
+from discord import client
 from discord.errors import HTTPException
 from discord.ext import commands
 from cogs.jsonfxn import open_datajson, save_json
@@ -171,7 +173,8 @@ class CustomRoles(commands.Cog):
             data[guild_id]['roles'][page_name] = {
                 'e_list': [], 
                 'msg_id': 0, 
-                'all_e': ''
+                'all_e': '',
+                'use_custom': False
             }
         sent_message = await ctx.send("Please react to this message with the emoji you want")
         reaction, user = await self.client.wait_for('reaction_add', timeout=60, check=check)
@@ -233,11 +236,13 @@ class CustomRoles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        try:
-            if payload.guild_id is None or payload.member.bot:
-                return
-        except AttributeError:
+        
+        message = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        user = await self.client.fetch_user(payload.user_id)
+
+        if payload.guild_id is None or user.bot or message.author.id != self.client.user.id:
             return
+
         guild_id = str(payload.guild_id)
         data = open_datajson(data_path, guild_id)[guild_id]
         if payload.message_id not in data.setdefault('role_msg_ids', []):
@@ -276,10 +281,15 @@ class CustomRoles(commands.Cog):
             data[guild_id]['role_msg_ids'].remove(message_id)
             save_json(data_path, data)
     
+    def get_message(self, message_id):
+            return self.client.fetch_message(message_id)
     
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
-        if payload.guild_id is None or payload.member.bot:
+        message = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        user = await self.client.fetch_user(payload.user_id)
+
+        if payload.guild_id is None or user.bot or message.author.id != self.client.user.id:
             return
         guild_id = str(payload.guild_id)
         guild = self.client.get_guild(int(guild_id))
@@ -306,10 +316,10 @@ class CustomRoles(commands.Cog):
                     continue
                 for role in page['e_list']:
                     if role[1] == emoji or add_all:
-                        role_to_add = self.client.get_guild(
+                        role_to_rem = self.client.get_guild(
                             payload.guild_id).get_role(role[0])
-                        await payload.member.add_roles(role_to_add,
-                            reason=f"{payload.member} reacted to my message",
+                        await member.remove_roles(role_to_rem,
+                            reason=f"{member} reacted to my message",
                             atomic=True)
                         
 
