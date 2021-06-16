@@ -42,6 +42,13 @@ def open_datajson(path: str, guild_id: int):
                 'audio': {}
             }
         }
+        data['system']['dm_msg'] = "Hi there {user}! Thanks for checking out "\
+        "my dm functionality! Please be aware that this channel is still "\
+        "being monitored by me {pigpig} (and only me, no one else has "\
+        "access) to prevent abuse/misuse and to catch those pesky bugs! If "\
+        "you do not want me to see this chat just type a message here saying "\
+        "so! Otherwise, thanks for using Sze Yap Bot!"
+        data['system']['igonored_dms'] = []
         save_json(path, data)
     return data
 
@@ -53,8 +60,7 @@ def get_prefix(client, message):
             return '+'
         else:
             try:
-                # return prefixes[str(message.guild.id)]
-                return '/'
+                return prefixes[str(message.guild.id)]
             except KeyError:
                 prefixes[str(message.guild.id)] = '+'
                 save_json(prefix_path, prefixes)

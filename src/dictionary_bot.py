@@ -119,7 +119,7 @@ async def on_ready():
     if not os.path.isfile(os.path.join(filepath, 'cogs', 'prefixes.json')):
         with open(os.path.join(filepath, 'cogs', 'prefixes.json'), 'w') as f:
             json.dump({}, f)
-    global stephen_li, freq, command_channel
+    global stephen_li, freq, command_channel, pigpig
     with codecs.open(os.path.join(filepath, 'stephen-li.json'), 'r', 
                      encoding='utf-8') as f:
         stephen_li = json.load(f)
@@ -128,6 +128,7 @@ async def on_ready():
         freq = {rows[0]:rows[3] for rows in reader}
     print(f'{client.user} has connected to Discord!')
     command_channel = client.get_channel(id=785674955676188682)
+    pigpig = client.get_user(id=693267245610303518)
     await client.change_presence(activity=discord.Activity(
         name=" +help", type=discord.ActivityType.listening))
 
@@ -426,7 +427,6 @@ async def gc(ctx, *, args):
     if len(embed_list.curr_page().defn_idx) > 0 and disp_id == 1:
         await sent_embed.add_reaction(emoji_list.books)
 
-    
 
 
 @client.command()
@@ -463,6 +463,8 @@ async def sl(ctx, *, args):
         
         search_result = [word for word in stephen_li 
                          if search in word['taishanese']]
+    elif re.match(r"[A-Za-z]+[1-9]{2,3}\b", search):
+        search_result = [word for word in stephen_li if search in word['taishaneseRomanization'].strip("[]")]
     else:
         search_result = [word for word in stephen_li if re.search(rf'\b{re.escape(search)}\b', word['english'].lower())]
     search_result = sorted(search_result, key=sort_sl)
@@ -753,7 +755,16 @@ async def dm(ctx, user_id: int, *, args):
 
 @client.event
 async def on_message(message):
-    if not message.guild:
+    data = open_datajson(os.path.join(filepath, 'cogs', 'data.json'), 'dm')
+    
+
+    if not message.guild and message.channel.id not in data['system']['ignored_dms']:
+        if message.author.id not in data.setdefault('dm', {}).setdefault('users', []) and not message.author.bot:
+            await message.channel.send(data['system']['dm_msg'].format(user=message.author.mention, pigpig=pigpig.mention))
+            
+            data['dm']['users'].append(message.author.id)
+            save_json(os.path.join(filepath, 'cogs', 'data.json'), data)
+        
         if len(message.embeds) > 0:
             await command_channel.send(embed=message.embeds[0], content=f"{message.author} sent an embed")
         elif len(message.attachments) > 0:
@@ -763,9 +774,9 @@ async def on_message(message):
                     content=f"{message.author} sent a file", file=file)
         if message.content != "":
             await command_channel.send(
-                f"{message.author} ({message.author.id}) said "
-                f"{message.content}")
+                f"**{message.author}** **id:** `{message.author.id}` "
+                f"**channel id:** `{message.channel.id}`\n"
+                f"```{message.content}```")
     await client.process_commands(message)
-
 
 client.run(token)

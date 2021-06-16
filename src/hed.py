@@ -104,9 +104,6 @@ def simple_chinese(chinese_word):
         pat=chinese_word, regex=False, na=False)]
 
 
-
-
-
 def pinyin(pinyin_word):
     return hed[hed['p.y.'].str.contains(pinyin_word, na=False)]
 
@@ -170,6 +167,8 @@ def process_defn(search_result):
             num_penyum = penyum
             for word_index, pin_phrase in enumerate(
                     [word.split("-") for word in num_penyum]):
+                print(row["英译与词句"])
+                print(pin_phrase)
                 for pin_index, pin in enumerate(pin_phrase):
                     special_char = re.search(rf"{pinyin_regex}", pin)
                     if special_char is None:

@@ -4,4 +4,3 @@ src/.env
 __pycache__
 Pipfile
 Pipfile.lock
-Procfile
