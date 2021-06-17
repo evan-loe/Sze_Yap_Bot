@@ -47,7 +47,7 @@ async def play_egg(self, ctx, type_: str):
     
     
     guild_id = str(ctx.guild.id)
-    data = open_datajson(join(path, 'data.json'), ctx.guild.id)
+    data = open_datajson(ctx.guild.id)
     
     data[guild_id]['easter_egg'][str(ctx.author.id)][type_] = \
         data[guild_id].setdefault('easter_egg', {})\

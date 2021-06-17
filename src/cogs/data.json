@@ -676,6 +676,10 @@
     },
     "system": {
         "dm_msg": "Hi there {user}! Thanks for checking out my dm functionality! Please be aware that this channel is still being monitored by me {pigpig} (and only me, no one else has access) to prevent abuse/misuse and to catch those pesky bugs! If you do not want me to see this chat just type a message here saying so! Otherwise, thanks for using Sze Yap Bot!",
-        "ignored_dms": []
+        "ignored_dms": [],
+        "twitter": [],
+        "tweet_count": 0,
+        "youtube": [],
+        "youtube_count": 0
     }
 }

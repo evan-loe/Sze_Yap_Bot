@@ -31,7 +31,7 @@ class CustomRoles(commands.Cog):
     @rolepage.command(name='pages')
     async def pages_sub(self, ctx):
         guild_id = str(ctx.guild.id)
-        pages = open_datajson(data_path, ctx.guild.id)[guild_id]['roles']
+        pages = open_datajson(ctx.guild.id)[guild_id]['roles']
         if len(pages) == 0:
             await ctx.send("There are no role pages for this server!")
             return
@@ -62,7 +62,7 @@ class CustomRoles(commands.Cog):
     @rolepage.command(name='send', aliases=['display'])
     async def send_sub(self, ctx, channel: discord.TextChannel, *, page_name):
         guild_id = str(ctx.guild.id)
-        data = open_datajson(data_path, ctx.guild.id)
+        data = open_datajson(ctx.guild.id)
         pages = data[guild_id]['roles']
         if page_name.isdigit():
             title, role_page = list(pages.items())[int(page_name)-1]
@@ -107,7 +107,7 @@ class CustomRoles(commands.Cog):
                 'React to this message with the emoji you want to use!')
             reaction, user = await self.client.wait_for(
                 'reaction_add', timeout=60, check=check)
-            data = open_datajson(data_path, guild_id)
+            data = open_datajson(guild_id)
             data[guild_id].setdefault('all_roles', {}).setdefault('emoji', "")
             if type(reaction.emoji) == str:
                 emoji = reaction.emoji
@@ -136,7 +136,7 @@ class CustomRoles(commands.Cog):
             return
         guild_id = str(ctx.guild.id)
         try:
-            data = open_datajson(data_path, guild_id)
+            data = open_datajson(guild_id)
             title = data[guild_id]['all_roles']['title']
             description = data[guild_id]['all_roles']['description']
         except KeyError:
@@ -165,7 +165,7 @@ class CustomRoles(commands.Cog):
         def check_msg(message):
             return message.author == ctx.author
 
-        data = open_datajson(data_path, ctx.guild.id)
+        data = open_datajson(ctx.guild.id)
         guild_id = str(ctx.guild.id)
         if 'roles' not in data[guild_id].keys():
             data[guild_id]['roles'] = {}
@@ -206,7 +206,7 @@ class CustomRoles(commands.Cog):
     @commands.has_permissions(administrator=True)
     @remove.command(name='page')
     async def removepage_sub(self, ctx, *, page_name):
-        data = open_datajson(data_path, ctx.guild.id)
+        data = open_datajson(ctx.guild.id)
         if data[str(ctx.guild.id)]['roles'].pop(page_name, None) is None:
             await ctx.send("Sorry, couldn't find that page")
             return
@@ -217,7 +217,7 @@ class CustomRoles(commands.Cog):
     @commands.has_permissions(administrator=True)
     @remove.command(name='role')
     async def removerole_sub(self, ctx, d_role:discord.Role, *, page_name):
-        data = open_datajson(data_path, ctx.guild.id)
+        data = open_datajson(ctx.guild.id)
         try:
             for index, role in enumerate(data[str(ctx.guild.id)]['roles'][page_name]['e_list']):
                 if role[0] == d_role.id:
@@ -244,7 +244,7 @@ class CustomRoles(commands.Cog):
             return
 
         guild_id = str(payload.guild_id)
-        data = open_datajson(data_path, guild_id)[guild_id]
+        data = open_datajson(guild_id)[guild_id]
         if payload.message_id not in data.setdefault('role_msg_ids', []):
             return
         emoji = payload.emoji
@@ -276,7 +276,7 @@ class CustomRoles(commands.Cog):
     async def on_raw_message_delete(self, payload):
         guild_id = str(payload.guild_id)
         message_id = payload.message_id
-        data = open_datajson(data_path, guild_id)
+        data = open_datajson(guild_id)
         if message_id in data[guild_id].setdefault('role_msg_ids', []):
             data[guild_id]['role_msg_ids'].remove(message_id)
             save_json(data_path, data)
@@ -295,7 +295,7 @@ class CustomRoles(commands.Cog):
         guild = self.client.get_guild(int(guild_id))
         member = await guild.fetch_member(payload.user_id)
         
-        data = open_datajson(data_path, guild_id)[guild_id]
+        data = open_datajson(guild_id)[guild_id]
         if payload.message_id not in data.setdefault('role_msg_ids', []):
             return
         emoji = payload.emoji

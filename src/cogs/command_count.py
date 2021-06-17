@@ -19,7 +19,7 @@ class CommandCount(commands.Cog):
             guild_id = 'dm'
         else:
             guild_id = str(ctx.guild.id)
-        data = open_datajson(join(__location__, 'data.json'), guild_id)[str(ctx.guild.id)]['command_count']
+        data = open_datajson(guild_id)[str(ctx.guild.id)]['command_count']
         try:
             for command in data.items():
                 text = f'***{command[0]}***\n```'
@@ -51,7 +51,7 @@ class CommandCount(commands.Cog):
         channel_id = str(channel.id)
         command = ctx.command.name
         
-        data = open_datajson(join(__location__, 'data.json'), guild_id)
+        data = open_datajson(guild_id)
         com_count = data[guild_id]['command_count']
         try:
             if command not in com_count:

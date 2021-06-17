@@ -755,7 +755,7 @@ async def dm(ctx, user_id: int, *, args):
 
 @client.event
 async def on_message(message):
-    data = open_datajson(os.path.join(filepath, 'cogs', 'data.json'), 'dm')
+    data = open_datajson('dm')
     
 
     if not message.guild and message.channel.id not in data['system']['ignored_dms']:

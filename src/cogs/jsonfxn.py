@@ -28,9 +28,9 @@ def open_wcjson(path: str, guild_id: int):
     return json_file
 
 
-def open_datajson(path: str, guild_id: int):
+def open_datajson(guild_id: int):
     guild_id = str(guild_id)
-    with open(path, 'r') as f:
+    with open(join(filepath, 'data.json'), 'r') as f:
         data = json.load(f)
     if guild_id not in data:
         data[guild_id] = {
