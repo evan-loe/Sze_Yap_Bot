@@ -152,5 +152,19 @@
             255,
             255
         ]
+    },
+    "840201432001937428": {
+        "showwcmsg": false,
+        "en_title": "",
+        "ch_title": "",
+        "pfp": true,
+        "message": "",
+        "channel": null,
+        "hoisan_pics": false,
+        "text_colour": [
+            255,
+            255,
+            255
+        ]
     }
 }
