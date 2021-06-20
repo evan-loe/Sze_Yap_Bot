@@ -4,3 +4,5 @@ src/.env
 __pycache__
 Pipfile
 Pipfile.lock
+src/cogs/data.json
+src/client_secret_CLIENTID.json
