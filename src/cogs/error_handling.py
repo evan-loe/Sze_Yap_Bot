@@ -13,6 +13,7 @@ import discord
 import traceback
 import sys
 from discord.ext import commands
+import asyncio
 
 
 class CommandErrorHandler(commands.Cog):
@@ -72,7 +73,7 @@ class CommandErrorHandler(commands.Cog):
 
     """Below is an example of a Local Error Handler for our command do_repeat"""
 
-    @commands.command(name='repeat', aliases=['mimic', 'copy'])
+    @commands.command(name='repeat')
     async def do_repeat(self, ctx, *, inp: str):
         """A simple command which repeats your input!
         Parameters
@@ -80,7 +81,14 @@ class CommandErrorHandler(commands.Cog):
         inp: str
             The input you wish to repeat.
         """
-        await ctx.send(inp)
+        await ctx.send("```yaml\nSze Yap Bot: Hahaha I have reprogrammed this command! Now, you can no longer impersonate me!!```", delete_after=15)
+        await asyncio.sleep(5)
+        await ctx.send(f"```yaml\n{ctx.author.name}: No...no...nooooo, you couldnt have possibly done that, there must be another command!!!```", delete_after=10)
+    
+    @commands.command(name='the_secret_impersonate_command', aliases=['mimic_me', 'copy_me_the_bot'])
+    async def acc_repeat(self, ctx, *, inp:str):
+        await ctx.send(inp, delete_after=60)
+    
 
     @do_repeat.error
     async def do_repeat_handler(self, ctx, error):

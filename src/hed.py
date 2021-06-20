@@ -4,7 +4,7 @@ import unidecode
 from os.path import join, dirname
 from datetime import datetime
 filepath = dirname(__file__)
-hed = pd.read_csv(join(filepath, 'HED Alphabetical 20200622.csv'), 
+hed = pd.read_csv(join(filepath, 'gummybear.csv'), 
                   low_memory=False)
 time_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
@@ -105,7 +105,7 @@ def simple_chinese(chinese_word):
 
 
 def pinyin(pinyin_word):
-    return hed[hed['p.y.'].str.contains(pinyin_word, na=False)]
+    return process_defn(hed[hed['p.y.'].str.contains(pinyin_word, na=False)])
 
 
 def hed_translate_mean_only(word_phrase):

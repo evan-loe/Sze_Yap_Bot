@@ -10,7 +10,6 @@ from discord.webhook import RequestsWebhookAdapter
 import re
 from cogs.jsonfxn import save_json, open_datajson
 
-
 load_dotenv()
 YOUTUBE_TOKEN = getenv("YOUTUBE_TOKEN")
 
@@ -26,12 +25,13 @@ __location__ = path.dirname(__file__)
 
 while True:
     start_time = datetime.now()
+    print(start_time)
     sys.stdout.write("[%s]" % (" " * toolbar_width))
     sys.stdout.flush()
     sys.stdout.write("\b" * (toolbar_width+1)) # return to start of line, after '['
 
     for i in range(toolbar_width):
-        time.sleep(120)
+        time.sleep(60)
         sys.stdout.write("-")
         sys.stdout.flush()
 
@@ -42,7 +42,8 @@ while True:
         'maxResults': '25',
         'q': 'taishanese%&C台山話',
         'key': YOUTUBE_TOKEN,
-        'publishedAfter': start_time.replace(microsecond=0).isoformat() + "Z"
+        'publishedAfter': start_time.replace(microsecond=0).isoformat() + "Z",
+        'publishedBefore': (start_time + timedelta(hours=1)).replace(microsecond=0).isoformat() + "Z",
     }
     print(params)
     
@@ -51,7 +52,7 @@ while True:
     print(search_json)
     
     data = open_datajson('system')
-    for link in data['youtube']:
+    for link in data['system']['youtube']:
         match = re.search(r"discord(app)?\.com\/api\/webhooks\/(?P<id>\d+)\/(?P<token>.+)", link)
         webhook = Webhook.partial(
             match.group("id"), match.group("token"),
@@ -60,5 +61,6 @@ while True:
         for item in search_json.setdefault('items', []):
             webhook.send(BASE_URL+item['id']['videoId'])
     
-    data['youtube_count'] += 1
-    save_json(path.join(__location__, 'cogs', 'data.json'), data)
+    if len(search_json['items']) > 0:
+        data['system']['youtube_count'] += 1
+        save_json(path.join(__location__, 'cogs', 'data.json'), data)

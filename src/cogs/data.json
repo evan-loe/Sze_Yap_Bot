@@ -12,9 +12,9 @@
             "gc": {
                 "758544905822797868": 7,
                 "791719328373538817": 14,
-                "786014443221417994": 19,
+                "786014443221417994": 22,
                 "848279863646879837": 19,
-                "848271154597986355": 16,
+                "848271154597986355": 31,
                 "848280993176748092": 1
             },
             "penyim": {
@@ -122,7 +122,8 @@
                 "786014443221417994": 5,
                 "848280993176748092": 3,
                 "791719328373538817": 4,
-                "852215232960921621": 1
+                "852215232960921621": 1,
+                "848271154597986355": 2
             },
             "setentitle": {
                 "786014443221417994": 2
@@ -150,6 +151,16 @@
             },
             "setsuswarning": {
                 "791719328373538817": 1
+            },
+            "webhook": {
+                "848271154597986355": 2
+            },
+            "twitter": {
+                "848271154597986355": 2
+            },
+            "repeat": {
+                "848271154597986355": 9,
+                "786014443221417994": 2
             }
         },
         "easter_egg": {
@@ -677,9 +688,13 @@
     "system": {
         "dm_msg": "Hi there {user}! Thanks for checking out my dm functionality! Please be aware that this channel is still being monitored by me {pigpig} (and only me, no one else has access) to prevent abuse/misuse and to catch those pesky bugs! If you do not want me to see this chat just type a message here saying so! Otherwise, thanks for using Sze Yap Bot!",
         "ignored_dms": [],
-        "twitter": [],
-        "tweet_count": 0,
-        "youtube": [],
-        "youtube_count": 0
+        "twitter": [
+            "https://discord.com/api/webhooks/853855634550554645/iW58IsX3Ot6Js-Fd_ZiYiIC4wG8-BH0prx4C5DAvZtR1fi9SCl0yiuKRnwRSUTUOPQgc"
+        ],
+        "tweet_count": 22,
+        "youtube": [
+            "https://discord.com/api/webhooks/854940740638212106/OkMam_bQKsrXp39PG2UpK6xeHCMsVwuMSg4GDwGaSYLR1EzRxDANpYn3WSQ0MpIegc87"
+        ],
+        "youtube_count": 3
     }
 }

@@ -112,7 +112,7 @@ async def not_found(messageable: discord.abc.Messageable):
 async def on_ready():
     initial_extensions = ['cogs.command_prefix', 'cogs.error_handling', 
                           'cogs.welcome', 'cogs.easteregg',
-                          'cogs.command_count', 'cogs.roles']
+                          'cogs.command_count', 'cogs.roles', 'cogs.webhook']
     for cog in initial_extensions:
         client.load_extension(cog)
         
@@ -277,14 +277,8 @@ def remove_format(string):
     return re.sub(r'[⁰¹²³⁴⁵⁶⁷⁸⁹]|\<wr\.\>\s|<又>\s|<台>\s|<topo.>\s', '', string)
 
 @client.command()
-async def gc(ctx, *, args):
-    if re.search(r'[a-zA-Z]', "".join(args)) and len([args]) > 1:
-        search = " ".join(args)
-    else:
-        search = "".join(args)
-
-    if type(args) == str and not re.search(r'[\u4e00-\u9fff\u3400-\u4DBF\u4E00-\u9FCC]', search):  # makes sure its a list
-        args = [args]
+async def gc(ctx, *args):
+    search = " ".join(args)
 
     def sort(series):
         score = []
@@ -301,15 +295,16 @@ async def gc(ctx, *, args):
         return pd.Series(score, dtype='float64')
 
     if re.search(r'[\u4e00-\u9fff\u3400-\u4DBF\u4E00-\u9FCC]', search):
-        if len(args) < 2:
-            search_result = single_chinese(args[0])
+        if len(search) < 2:
+            search_result = single_chinese(search)
             disp_id = 1
         else:
             search_result = multi_chinese(search)
             disp_id = 2
-    elif re.match(r"[A-Za-z]+[1-9]{2,3}\b", search) and len(args) < 2:
-        decomp = re.match(r"([a-z]+)([0-9]+)\b", args[0], re.I).groups()
-        search_result = pinyin(decomp[0] + tone_to_num.get(decomp[1][:2]))
+    elif re.search(r"[A-Za-z]+[1-9]{2,3}\b", search):
+        split_word = [re.search(r"([a-z]+)([0-9]+)\b", split_search, re.I).groups() for split_search in args if re.match(r"[A-Za-z]+[1-9]{2,3}\b", split_search)]
+        print(split_word)
+        search_result = pinyin("-".join([(decomp[0] + tone_to_num.get(decomp[1][:2])) for decomp in split_word]))
         disp_id = 3
     else:
         search_result = single_multi_search(search).sort_values(
