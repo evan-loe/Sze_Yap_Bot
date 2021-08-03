@@ -30,7 +30,7 @@ from embed import add_to_master, embed_master_list
 from cogs.jsonfxn import get_prefix
 
 load_dotenv()
-token = os.getenv("info_token")
+token = os.getenv("token")
 time_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
 cats = ["/ᐠ｡ꞈ｡ᐟ\\", "/ᐠ｡▿｡ᐟ\\*ᵖᵘʳʳ*", "/ᐠ –ꞈ –ᐟ\\",

@@ -49,7 +49,7 @@ def open_datajson(guild_id: int):
         "you do not want me to see this chat just type a message here saying "\
         "so! Otherwise, thanks for using Sze Yap Bot!"
         data['system']['igonored_dms'] = []
-        save_json(path, data)
+        save_json(join(filepath, 'data.json'), data)
     return data
 
 def get_prefix(client, message):
