@@ -173,17 +173,18 @@ def process_defn(search_result):
                     special_char = re.search(rf"{pinyin_regex}", pin)
                     if special_char is None:
                         print(f"error on {pin}")
-                    special_char = special_char.group(0)
-                    if special_char in macron:
-                        pin += "1"
-                    elif special_char in diaeresis:
-                        pin += "2"
-                    elif special_char in tilde:
-                        pin += "3"
-                    elif special_char in grave_accent:
-                        pin += "4"
-                    elif special_char in circumflex:
-                        pin += "5"
+                    else:
+                        special_char = special_char.group(0)
+                        if special_char in macron:
+                            pin += "1"
+                        elif special_char in diaeresis:
+                            pin += "2"
+                        elif special_char in tilde:
+                            pin += "3"
+                        elif special_char in grave_accent:
+                            pin += "4"
+                        elif special_char in circumflex:
+                            pin += "5"
                     pin_phrase[pin_index] = unidecode.unidecode(pin)
                 num_penyum[word_index] = "-".join(pin_phrase)
 
