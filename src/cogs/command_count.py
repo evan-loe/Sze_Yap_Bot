@@ -1,4 +1,4 @@
-from embed import EmbedList, add_to_master
+from embed import EmbedList, add_to_master, page_num
 from discord.ext import commands
 import discord
 from os.path import join, dirname, realpath
@@ -66,6 +66,57 @@ class CommandCount(commands.Cog):
 
         data[guild_id]['command_count'] = com_count
         save_json(join(__location__, 'data.json'), data)
+    
+    @commands.group(name='servers', invoke_without_command=True)
+    async def servers(self, ctx):
+        if ctx.author.id != 693267245610303518:
+            return
+        embed_list = EmbedList(message_id=None, type_id=8)
+        guild_list = self.client.guilds
+        guild_num = len(self.client.guilds)
+        while len(guild_list) > 0:
+            embed = discord.Embed(title=f"Servers - ({guild_num})")
+            embed.description = "\n".join([f"**{server.name}** - `{str(server.id)}`" for server in guild_list[:20]])
+            guild_list = guild_list[20:]
+            embed_list.add_page(embed, [], [])
+        sent_embed = await ctx.send(embed=page_num(embed_list).first_page())
+        add_to_master(embed_list, sent_embed)
+        for emoji in emoji_list[:2]:
+            await sent_embed.add_reaction(emoji)
+        
+        
+    @servers.command(name='detail', aliases=['details', 'info'])
+    async def detail_server(self, ctx):
+        if ctx.author.id != 693267245610303518:
+            return
+        embed_list = EmbedList(message_id=None, type_id=8)
+        for server in self.client.guilds:
+            # server = self.client.fetch_guild(guild.id)
+            embed = discord.Embed(
+                title=server.name,
+                description=f"`id:` {server.id}\n`Member Count:` **{server.member_count}**\n`Owner:` {server.owner}\n`Boosts:` {server.premium_subscription_count}")
+            if server.description:
+                embed.description += f"\n`Description:` {server.description}"
+            
+            if server.features:
+                embed.description += f"\n`Features:` {', '.join(server.features)}"
+            else:
+                embed.description += f"\n`Features:` None"
+            if server.icon_url:
+                embed.set_thumbnail(url=server.icon_url)
+            channels_text = f"\n`Channels:`\n{', '.join([chan.name for chan in server.text_channels[:20]])}"
+            if len(server.text_channels):
+                channels_text += f"***and {len(server.text_channels) - 20} more***"
+            embed.description += channels_text
+            if server.member_count > 20:
+                embed.description += f"\n`Members:`\n{', '.join(str(member) for member in server.members[:20])} ***and {server.member_count - 20} more***"
+            else:
+                embed.description += f"\n`Members:`\n{', '.join(str(member) for member in server.members)}"
+            embed_list.add_page(embed, [], [])
+        sent_embed = await ctx.send(embed=page_num(embed_list).first_page())
+        add_to_master(embed_list, sent_embed)
+        for emoji in emoji_list[:2]:
+            await sent_embed.add_reaction(emoji)
 
 
 

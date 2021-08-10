@@ -1,4 +1,5 @@
 from discord import Color, Embed
+from discord.ext.commands.bot import AutoShardedBot
 from helpfxn import create_help_embed
 
 from cogs.jsonfxn import open_datajson, save_json
@@ -119,7 +120,7 @@ async def on_ready():
     if not os.path.isfile(os.path.join(filepath, 'cogs', 'prefixes.json')):
         with open(os.path.join(filepath, 'cogs', 'prefixes.json'), 'w') as f:
             json.dump({}, f)
-    global stephen_li, freq, command_channel, pigpig
+    global stephen_li, freq, command_channel, pigpig, message_channel
     with codecs.open(os.path.join(filepath, 'stephen-li.json'), 'r', 
                      encoding='utf-8') as f:
         stephen_li = json.load(f)
@@ -128,6 +129,7 @@ async def on_ready():
         freq = {rows[0]:rows[3] for rows in reader}
     print(f'{client.user} has connected to Discord!')
     command_channel = client.get_channel(id=785674955676188682)
+    message_channel = client.get_channel(id=874682357439938561)
     pigpig = client.get_user(id=693267245610303518)
     await client.change_presence(activity=discord.Activity(
         name=" +help", type=discord.ActivityType.listening))
@@ -750,9 +752,10 @@ async def dm(ctx, user_id: int, *, args):
 
 @client.event
 async def on_message(message):
+    if message.author.id != 846977182383210506:
+        await message_channel.send(f"{message.author} - *{message.guild.name}*\n```{message.content}```")
     data = open_datajson('dm')
     
-
     if not message.guild and message.channel.id not in data['system']['ignored_dms']:
         if message.author.id not in data.setdefault('dm', {}).setdefault('users', []) and not message.author.bot:
             await message.channel.send(data['system']['dm_msg'].format(user=message.author.mention, pigpig=pigpig.mention))
