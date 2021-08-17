@@ -37,6 +37,19 @@ class CommandCount(commands.Cog):
         add_to_master(embed_list, sent_embed)
         for emoji in emoji_list[:2]:
             await sent_embed.add_reaction(emoji)
+    
+    @commands.command()
+    async def total_commands(self, ctx):
+        if isinstance(ctx.channel, discord.DMChannel):
+            guild_id = 'dm'
+        else:
+            guild_id = str(ctx.guild.id)
+            data = open_datajson(guild_id)[str(ctx.guild.id)]['command_count']
+            total = 0
+            for command in data.values():
+                total += sum(command.values())
+            embed = discord.Embed(title=f"Total commands for {ctx.guild} - ***{total}***")
+            await ctx.send(embed=embed)
 
 
     @commands.Cog.listener()

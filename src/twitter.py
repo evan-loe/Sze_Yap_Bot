@@ -96,9 +96,10 @@ def get_stream(headers):
                 
                 tweet = json.loads(response_line)
                 # print(json.dumps(tweet, indent=4, sort_keys=True))
+                print(tweet)
                 link = f"https://twitter.com/{tweet['data']['author_id']}"\
                     f"/statuses/{tweet['data']['id']}"
-                print(f"{tweet['data']['text']}\nMatched Rule: {tweet['matching_rules']['tag']}\n")
+                print(f"{tweet['data']['text']}\nMatched Rule: {[rule['tag'] for rule in tweet['matching_rules']]}\n")
                 embed = Embed(
                     description=f"{tweet['data']['text']}\n\n[Tweet]({link})",
                     timestamp=isoparse(tweet['data']['created_at']),
@@ -114,7 +115,7 @@ def get_stream(headers):
                         embed.set_image(url=tweet['includes']['media'][0]['url'])
                     elif 'preview_image_url' in tweet['includes']['media'][0]:
                         embed.set_image(url=tweet['includes']['media'][0]['preview_image_url'])
-                    
+                
                 embed.set_footer(text=f'Twitter', icon_url="https://help.twitter.com/content/dam/help-twitter/brand/logo.png")
                 
                 data = open_datajson('system')
@@ -131,17 +132,17 @@ def get_stream(headers):
 
 def start_webhook():
     rules = [
-        {"value": '(新會 OR 開平 OR 恩平 OR 恩平話 OR 新會話 OR 開平話 OR 台山 OR 台山話 OR 四邑 OR 四邑方言 OR 台山醬) -is:retweet (lang:en OR lang:zh-TW OR lang:und) -is:reply',
+        {"value": '(新會 OR 開平 OR 恩平 OR 恩平話 OR 新會話 OR 開平話 OR 台山 OR 台山話 OR 四邑 OR 四邑方言 OR 台山醬) -is:retweet (lang:en OR lang:zh-TW OR lang:zh OR lang:und) -is:reply',
          "tag": 'chinese chars'},
-        {"value": '("Sei Yap" OR "Sze Yap" OR SzeYap OR Siyi OR "Si Yi" OR Seiyap) -is:retweet (lang:en OR lang:zh-TW OR lang:und) -is:reply',
+        {"value": '("Sei Yap" OR "Sze Yap" OR SzeYap OR Siyi OR "Si Yi" OR Seiyap) -is:retweet (lang:en OR lang:zh-TW OR lang:zh OR lang:und) -is:reply',
          "tag": 'Sze Yap'},
-        {"value": '(Taishanhua OR Toisanwa OR Toisaanwaa OR Taicheng OR Toishan OR Taishanese OR Taishan OR Toisan OR Toisanese OR Toishanese) -is:retweet (lang:en OR lang:zh-TW OR lang:und) -is:reply',
+        {"value": '(Taishanhua OR Toisanwa OR Toisaanwaa OR Taicheng OR Toishan OR Taishanese OR Taishan OR Toisan OR Toisanese OR Toishanese) -is:retweet (lang:en OR lang:zh-TW OR lang:zh OR lang:und) -is:reply',
          "tag": 'Taishan'},
-        {"value": '(Hoisanese OR "Hoisan Sauce" OR "Hoisin Sauce" OR Hoisanva OR Hoisiang OR Hoisan) -is:retweet (lang:en OR lang:zh-TW OR lang:und) -is:reply',
+        {"value": '(Hoisanese OR "Hoisan Sauce" OR "Hoisin Sauce" OR Hoisanva OR Hoisiang OR Hoisan) -is:retweet (lang:en OR lang:zh-TW OR lang:zh OR lang:und) -is:reply',
          "tag": 'Hoisan'},
-        {"value": '(Hiak OR "Hiak Fan" OR "Hek Fan") -is:retweet (lang:en OR lang:zh-TW OR lang:und) -is:reply',
+        {"value": '(Hiak OR "Hiak Fan" OR "Hek Fan") -is:retweet (lang:en OR lang:zh-TW OR lang:zh OR lang:und) -is:reply',
          "tag": 'Hiak Fan'},
-        {"value": '"Taishan Sauce" -is:retweet (lang:en OR lang:zh-TW OR lang:und) -is:reply',
+        {"value": '"Taishan Sauce" -is:retweet (lang:en OR lang:zh-TW OR lang:zh OR lang:und) -is:reply',
          "tag": 'Taishan Sauce'},
     ]
     headers = create_headers(BEARER_TOKEN)

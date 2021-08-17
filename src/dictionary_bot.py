@@ -752,8 +752,7 @@ async def dm(ctx, user_id: int, *, args):
 
 @client.event
 async def on_message(message):
-    if message.author.id != 846977182383210506:
-        await message_channel.send(f"{message.author} - *{message.guild.name}*\n```{message.content}```")
+    
     data = open_datajson('dm')
     
     if not message.guild and message.channel.id not in data['system']['ignored_dms']:
@@ -775,6 +774,8 @@ async def on_message(message):
                 f"**{message.author}** **id:** `{message.author.id}` "
                 f"**channel id:** `{message.channel.id}`\n"
                 f"```{message.content}```")
+    elif message.author.id != 846977182383210506 and message.guild is not None:
+        await message_channel.send(f"{message.author} - *{message.guild.name}*\n```{message.content}```")
     await client.process_commands(message)
 
 client.run(token)
