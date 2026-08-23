@@ -1,8 +1,9 @@
 from discord.ext import commands
 import json
 import os
+from data_paths import cog_file
 
-json_path = os.path.join(os.path.dirname(__file__), 'prefixes.json')
+json_path = cog_file('prefixes.json')
 
 
 class InitializeCommandPrefix(commands.Cog):

@@ -7,8 +7,17 @@
 
 set -euo pipefail
 
+# NOTE: persistent storage
+# - The script uses a persistent data directory for venv, caches and runtime files.
+# - By default this is `/mnt/data/szeyap-bot-files` but you can override it in two ways:
+#   1) Set the environment variable `SZEYAP_DATA_DIR` inside the container.
+#      e.g. `export SZEYAP_DATA_DIR=/mnt/data/szeyap-bot-files`.
+#   2) Pass the desired path as the first argument to this script.
+# - When running in Docker, mount your host directory at the same path and set
+#   `SZEYAP_DATA_DIR` so the bot and helpers (including `src/data_paths.py`) use
+#   the same persistent location.
 # Default persistent data directory (can be overridden via env var or first arg)
-DATA_DIR="${1:-${DATA_DIR:-/mnt/data/szeyap-bot-files}}"
+DATA_DIR="${1:-${SZEYAP_DATA_DIR:-/mnt/data/szeyap-bot-files}}"
 
 # Resolve script and repo paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -46,7 +55,7 @@ fi
 # Activate and upgrade pip
 # shellcheck source=/dev/null
 source "$VENV_DIR/bin/activate"
-python -m pip install --upgrade pip setuptools wheel
+python -m pip install --upgrade pip
 
 # Install requirements from repository
 REQ_FILE="$REPO_ROOT/requirements.txt"

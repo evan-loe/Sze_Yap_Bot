@@ -7,6 +7,7 @@ import random
 import json
 from textwrap import wrap
 from cogs.jsonfxn import open_wcjson, save_json
+from data_paths import cog_file, temp_path
 from discord import File, Embed, Color
 import asyncio
 import re
@@ -107,12 +108,10 @@ def add_member_count(image: Image, member_count: int, colour: tuple) -> Image:
         font=title_font, stroke_width=5*image.size[1]//900, stroke_fill=(0,0,0))
 
 async def create_image(member):
-    welcome = open_wcjson(
-            join(__location__, 'welcome.json'), member.guild.id)[str(member.guild.id)]
+    welcome = open_wcjson(cog_file('welcome.json'), member.guild.id)[str(member.guild.id)]
 
     member_cnt = member.guild.member_count
-    temp = join(__location__, 'temp')
-    pfp_path = join(temp, f"{member.id}.png")
+    pfp_path = temp_path(f"{member.id}.png")
     await member.avatar_url.save(pfp_path)
     
     if welcome['hoisan_pics'] is True:
@@ -135,8 +134,8 @@ async def create_image(member):
             image=wel_img, en=welcome['en_title'], ch=welcome['ch_title'], 
             name=str(member), num_mem=member_cnt, 
             colour=tuple(welcome['text_colour']))
-    wel_img.save(join(temp, f'{member.id}_edited.png'))
-    return join(temp, f'{member.id}_edited.png')
+    wel_img.save(temp_path(f'{member.id}_edited.png'))
+    return temp_path(f'{member.id}_edited.png')
 
 
 class WelcomeImage(commands.Cog):
@@ -147,8 +146,7 @@ class WelcomeImage(commands.Cog):
     @commands.command(aliases=['test'])
     async def testwcmsg(self, ctx):
         member = ctx.author
-        welcome = open_wcjson(
-            join(__location__, 'welcome.json'), member.guild.id)[(str(member.guild.id))]
+        welcome = open_wcjson(cog_file('welcome.json'), member.guild.id)[(str(member.guild.id))]
         img_path = await create_image(member)
         file = File(img_path)
         embed = Embed(colour=Color.from_rgb(77, 179, 247))
@@ -186,7 +184,7 @@ class WelcomeImage(commands.Cog):
             try:
                 acc_age = datetime.utcnow() - member.created_at
                 if acc_age.total_seconds < 60:
-                    data = open_wcjson(join(__location__, 'data.json'), member.guild.id)
+                    data = open_wcjson(cog_file('data.json'), member.guild.id)
                     channel = member.guild.get_channel(data[str(member.guild.id)]['welcome_warn'])
                     embed = discord.Embed(title="LOL its a sus acount, at least i think it is...")
                     embed.add_field(
@@ -201,14 +199,14 @@ class WelcomeImage(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def setsuswarning(self, ctx, warn_state: bool, channel: discord.TextChannel=None):
-        data = open_wcjson(join(__location__, 'data.json'), ctx.guild.id)
+        data = open_wcjson(cog_file('data.json'), ctx.guild.id)
         
         if warn_state:
             data[str(ctx.guild.id)].setdefault('welcome_warn', "")
             data[str(ctx.guild.id)]['welcome_warn'] = channel.id
         else:
             data[str(ctx.guild.id)].pop('welcome_warn', None)
-        save_json(join(__location__, 'data.json'), data)
+        save_json(cog_file('data.json'), data)
         await ctx.send(f"Ok, I set sus warning to {warn_state}")
 
 
@@ -221,7 +219,7 @@ class WelcomeImage(commands.Cog):
                 and message.author == ctx.author\
                 and re.match(r'\<#[0-9]{18}\>$', message.content)
 
-        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
+        config = open_wcjson(cog_file('welcome.json'), ctx.guild.id)
         
         await ctx.send(f"What is the channel you would like to send the "
                        f"welcome message in?")
@@ -237,7 +235,7 @@ class WelcomeImage(commands.Cog):
         config[str(ctx.guild.id)]['channel'] = int(
             message.content.replace('<#', '').replace('>', ''))
         config[str(ctx.guild.id)]['message'] = args
-        with open(join(__location__, 'welcome.json'), 'w', encoding='utf-8') as f:
+        with open(cog_file('welcome.json'), 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=4, ensure_ascii=False)
         await ctx.send("Ok, welcome message configured!")
     
@@ -247,18 +245,18 @@ class WelcomeImage(commands.Cog):
         if len(args) > 60:
             await ctx.send("Sorry that title is too long!")
             return
-        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
+        config = open_wcjson(cog_file('welcome.json'), ctx.guild.id)
         config[str(ctx.guild.id)]['en_title'] = args.replace('#_newline', '\n')
-        save_json(join(__location__, 'welcome.json'), config)
+        save_json(cog_file('welcome.json'), config)
         await ctx.send("Ok, English title for welcome message configured!")
     
     
     @commands.command()
     @commands.has_permissions(administrator=admin)
     async def setchtitle(self, ctx, *, args):
-        config = open_wcjson(join(__location__, 'welcome.json'), ctx.guild.id)
+        config = open_wcjson(cog_file('welcome.json'), ctx.guild.id)
         config[str(ctx.guild.id)]['ch_title'] = args
-        save_json(join(__location__, 'welcome.json'), config)
+        save_json(cog_file('welcome.json'), config)
         await ctx.send("Ok, Chinese title for welcome message configured!")
     
     @commands.command()

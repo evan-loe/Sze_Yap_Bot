@@ -1,12 +1,12 @@
 import requests
-from os.path import join, isfile, dirname
+from os.path import isfile
+from data_paths import synonyms_file
 import json
-filepath = dirname(__file__)
 
 
 def in_local(word):
     word = word.replace(' ', '-').lower()
-    file = join(filepath, 'synonyms', f'{word}.json')
+    file = synonyms_file(f'{word}.json')
     if isfile(file) is True:
         with open(file, 'r') as f:
             return json.load(f), True
@@ -14,7 +14,7 @@ def in_local(word):
 
 
 def save_to_local(word, dict_):
-    file = join(filepath, 'synonyms', f'{word}.json')
+    file = synonyms_file(f'{word}.json')
     with open(file, 'w+') as f:
         json.dump(dict_, f)
 

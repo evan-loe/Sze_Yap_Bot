@@ -3,6 +3,7 @@ from discord.ext.commands.bot import AutoShardedBot
 from helpfxn import create_help_embed
 
 from cogs.jsonfxn import open_datajson, save_json
+from data_paths import cog_file, orig_audio_path, tones_audio_path
 import discord
 from discord.errors import ClientException, HTTPException
 from discord.player import FFmpegPCMAudio
@@ -19,7 +20,7 @@ import numpy as np
 import re
 import requests
 from pathlib import Path
-import pynormalize
+from audio_utils import process_files as normalize_process_files
 import random
 from collections import namedtuple
 import csv
@@ -117,8 +118,8 @@ async def on_ready():
     for cog in initial_extensions:
         client.load_extension(cog)
         
-    if not os.path.isfile(os.path.join(filepath, 'cogs', 'prefixes.json')):
-        with open(os.path.join(filepath, 'cogs', 'prefixes.json'), 'w') as f:
+    if not os.path.isfile(cog_file('prefixes.json')):
+        with open(cog_file('prefixes.json'), 'w') as f:
             json.dump({}, f)
     global stephen_li, freq, command_channel, pigpig, message_channel
     with codecs.open(os.path.join(filepath, 'stephen-li.json'), 'r', 
@@ -167,21 +168,18 @@ async def reaction_handling(reaction, user):
             audio_link.replace(
                 "http://www.stephen-li.com/TaishaneseVocabulary/", ""),
             maxsplit=1, flags=re.IGNORECASE)
-        folder_path = Path(os.path.join(
-            filepath, 'tones_audio', dir_and_name[0]))
-        audio_path = os.path.join(folder_path, dir_and_name[1])
+        folder_path = Path(tones_audio_path(dir_and_name[0]))
+        audio_path = str(folder_path / dir_and_name[1])
         folder_path.mkdir(parents=True, exist_ok=True)
-        orig = os.path.join(
-            filepath, 'orig_audio', ''.join(dir_and_name))
-        Path(os.path.join(filepath, 'orig_audio', dir_and_name[0])).\
-            mkdir(parents=True, exist_ok=True)
+        orig = orig_audio_path(''.join(dir_and_name))
+        Path(orig_audio_path(dir_and_name[0])).mkdir(parents=True, exist_ok=True)
 
         if not os.path.isfile(audio_path):
             mp3 = requests.get(audio_link)
             with open(orig, 'wb') as f:
                 f.write(mp3.content)
-            pynormalize.process_files(
-                [orig], target_dbfs=-12, directory=folder_path)
+            # normalize audio to target dBFS and place into folder_path
+            normalize_process_files([orig], target_dbfs=-12, directory=folder_path)
         
         if isinstance(reaction.message.channel, discord.channel.DMChannel):
             page = embed.curr_page()
@@ -582,7 +580,7 @@ async def hoisan_sauce(ctx):
                 voice = await voice.move_to(ctx.author.voice.channel)
         else:
             voice = await channel.connect()
-        mypath = os.path.join(filepath, 'tones_audio', 'hoisan_videos')
+        mypath = tones_audio_path('hoisan_videos')
         audio_file = [f for f in os.listdir(mypath) if os.path.isfile(
             os.path.join(mypath, f))]
         chosen_file = random.choice(audio_file)

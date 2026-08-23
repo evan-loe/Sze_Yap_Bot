@@ -1,7 +1,8 @@
 import json
 import codecs
-from os.path import join, dirname
+from os.path import dirname
 from discord import channel
+from data_paths import cog_file
 
 filepath = dirname(__file__)
 
@@ -30,7 +31,7 @@ def open_wcjson(path: str, guild_id: int):
 
 def open_datajson(guild_id: int):
     guild_id = str(guild_id)
-    with open(join(filepath, 'data.json'), 'r') as f:
+    with open(cog_file('data.json'), 'r') as f:
         data = json.load(f)
     if guild_id not in data:
         data[guild_id] = {
@@ -49,11 +50,11 @@ def open_datajson(guild_id: int):
         "you do not want me to see this chat just type a message here saying "\
         "so! Otherwise, thanks for using Sze Yap Bot!"
         data['system']['igonored_dms'] = []
-        save_json(join(filepath, 'data.json'), data)
+        save_json(cog_file('data.json'), data)
     return data
 
 def get_prefix(client, message):
-    prefix_path = join(filepath, 'prefixes.json')
+    prefix_path = cog_file('prefixes.json')
     with open(prefix_path, 'r') as f:
         prefixes = json.load(f)
         if isinstance(message.channel, channel.DMChannel):

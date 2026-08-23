@@ -9,6 +9,7 @@ from discord import Webhook
 from discord.webhook import RequestsWebhookAdapter
 import re
 from cogs.jsonfxn import save_json, open_datajson
+from data_paths import cog_file
 
 load_dotenv()
 YOUTUBE_TOKEN = getenv("YOUTUBE_TOKEN")
@@ -63,4 +64,4 @@ while True:
     
     if len(search_json['items']) > 0:
         data['system']['youtube_count'] += 1
-        save_json(path.join(__location__, 'cogs', 'data.json'), data)
+        save_json(cog_file('data.json'), data)
