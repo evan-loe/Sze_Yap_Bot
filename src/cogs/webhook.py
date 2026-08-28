@@ -60,6 +60,6 @@ class MediaWebhooks(commands.Cog):
         save_json(join(dirname(__file__), 'data.json'), data)
         
         
-def setup(client):
-    client.add_cog(MediaWebhooks(client))
+async def setup(client):
+    await client.add_cog(MediaWebhooks(client))
     

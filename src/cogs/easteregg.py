@@ -82,8 +82,8 @@ class EasterEgg(commands.Cog):
         await play_egg(self, ctx, 'meow')
         
 
-def setup(client):
-    client.add_cog(EasterEgg(client))
+async def setup(client):
+    await client.add_cog(EasterEgg(client))
         
 
 

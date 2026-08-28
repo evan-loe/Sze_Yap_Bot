@@ -14,3 +14,13 @@ Features:
 * Customizable welcome message with optional chinese title!
 
 Sze Yap Bot is actively being developed so expect more features to come!
+
+## Local run
+
+To run the bot on your machine without using the production `/mnt` path, use the local runner and point it at a dev data directory:
+
+```bash
+python src/run_bot.py --data-dir ./dev-data
+```
+
+That will store `cogs/`, `synonyms/`, `orig_audio/`, `tones_audio/`, and `temp/` under `./dev-data` instead of `/mnt/data/szeyap-bot-files`.

@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
-# Environment variable to override persistent storage location
-# Set SZEYAP_DATA_DIR to change where runtime files are stored
-DATA_DIR = Path(os.getenv('SZEYAP_DATA_DIR', '/mnt/data/szeyap-bot-files'))
+# Environment variable to override persistent storage location.
+# Local default is ./data; Docker/production can set SZEYAP_DATA_DIR.
+DATA_DIR = Path(os.getenv('SZEYAP_DATA_DIR', './data'))
 
 # Create required directories inside the data dir
 COGS_DIR = DATA_DIR / 'cogs'

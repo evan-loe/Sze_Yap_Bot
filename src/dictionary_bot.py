@@ -1,3 +1,18 @@
+import argparse
+import os
+import sys
+
+
+def _bootstrap_runtime_options():
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--data-dir", dest="data_dir")
+    args, _ = parser.parse_known_args()
+    if args.data_dir:
+        os.environ["SZEYAP_DATA_DIR"] = args.data_dir
+
+
+_bootstrap_runtime_options()
+
 from discord import Color, Embed
 from discord.ext.commands.bot import AutoShardedBot
 from helpfxn import create_help_embed
@@ -9,7 +24,6 @@ from discord.errors import ClientException, HTTPException
 from discord.player import FFmpegPCMAudio
 from dotenv import load_dotenv
 from discord.ext import commands
-import os
 
 from hed import hed_usage, multi_chinese, pinyin, rand_word, simple_chinese, single_chinese, single_multi_search
 from embed import change_page, change_selection, add_credit, EmbedList, EmbedPage, page_num
@@ -814,4 +828,10 @@ async def on_message(message):
         await message_channel.send(f"{message.author} - *{message.guild.name}*\n```{message.content}```")
     await client.process_commands(message)
 
-client.run(token)
+
+def main():
+    client.run(token)
+
+
+if __name__ == '__main__':
+    main()

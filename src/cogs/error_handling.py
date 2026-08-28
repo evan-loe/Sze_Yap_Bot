@@ -103,5 +103,5 @@ class CommandErrorHandler(commands.Cog):
                 await ctx.send("You forgot to give me input to repeat!")
 
 
-def setup(client):
-    client.add_cog(CommandErrorHandler(client))
+async def setup(client):
+    await client.add_cog(CommandErrorHandler(client))

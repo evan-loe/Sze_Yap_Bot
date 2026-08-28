@@ -52,5 +52,5 @@ class InitializeCommandPrefix(commands.Cog):
         await ctx.send(f'Successfully changed the prefix to: **``{prefix}``**')
 
 
-def setup(client):
-    client.add_cog(InitializeCommandPrefix(client))
+async def setup(client):
+    await client.add_cog(InitializeCommandPrefix(client))

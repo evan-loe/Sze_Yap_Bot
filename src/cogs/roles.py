@@ -343,8 +343,8 @@ class CustomRoles(commands.Cog):
     #         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
     
     
-def setup(client):
-    client.add_cog(CustomRoles(client))
+async def setup(client):
+    await client.add_cog(CustomRoles(client))
 
         
         

@@ -358,5 +358,5 @@ class WelcomeImage(commands.Cog):
         save_json(join(__location__, 'welcome.json'), config)
         
  
-def setup(client):
-    client.add_cog(WelcomeImage(client))
+async def setup(client):
+    await client.add_cog(WelcomeImage(client))
