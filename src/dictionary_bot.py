@@ -28,6 +28,7 @@ import pandas as pd
 from PyDictionary import PyDictionary
 from synonym import synonym
 import codecs
+import time
 from embed import add_to_master, embed_master_list
 from cogs.jsonfxn import get_prefix
 
@@ -47,9 +48,41 @@ intents.members = True
 intents.reactions = True
 dictionary = PyDictionary()
 
-client = commands.Bot(
+
+class SzeYapBot(commands.Bot):
+
+    async def setup_hook(self):
+        startup_log("setup_hook: begin loading extensions")
+        initial_extensions = [
+            'cogs.command_prefix',
+            'cogs.error_handling',
+            'cogs.welcome',
+            'cogs.easteregg',
+            'cogs.command_count',
+            'cogs.roles',
+            'cogs.webhook',
+        ]
+        for cog in initial_extensions:
+            startup_log(f"setup_hook: loading {cog}")
+            start_time = time.perf_counter()
+            await self.load_extension(cog)
+            startup_log(f"setup_hook: loaded {cog} in {time.perf_counter() - start_time:.2f}s")
+        startup_log("setup_hook: finished loading extensions")
+
+
+client = SzeYapBot(
     command_prefix=get_prefix, case_insensitive=True, intents=intents,
     help_command=None)
+
+# These are populated in on_ready(); default them so on_message can't crash
+# if Discord delivers an event before startup finishes.
+command_channel = None
+message_channel = None
+pigpig = None
+
+
+def startup_log(message):
+    print(f"[{datetime.utcnow().isoformat()}Z] {message}")
 
 
 num_to_tone = {
@@ -112,28 +145,29 @@ async def not_found(messageable: discord.abc.Messageable):
 
 @client.event
 async def on_ready():
-    initial_extensions = ['cogs.command_prefix', 'cogs.error_handling', 
-                          'cogs.welcome', 'cogs.easteregg',
-                          'cogs.command_count', 'cogs.roles', 'cogs.webhook']
-    for cog in initial_extensions:
-        client.load_extension(cog)
-        
+    startup_log("on_ready: entered")
     if not os.path.isfile(cog_file('prefixes.json')):
+        startup_log("on_ready: prefixes.json missing, creating empty file")
         with open(cog_file('prefixes.json'), 'w') as f:
             json.dump({}, f)
     global stephen_li, freq, command_channel, pigpig, message_channel
+    startup_log("on_ready: loading stephen-li.json")
     with codecs.open(os.path.join(filepath, 'stephen-li.json'), 'r', 
                      encoding='utf-8') as f:
         stephen_li = json.load(f)
+    startup_log("on_ready: loading canto_freq_list.csv")
     with open('src/canto_freq_list.csv', mode='r') as f:
         reader = csv.reader(f)
         freq = {rows[0]:rows[3] for rows in reader}
-    print(f'{client.user} has connected to Discord!')
+    startup_log("on_ready: resolving channels/users")
     command_channel = client.get_channel(id=785674955676188682)
     message_channel = client.get_channel(id=874682357439938561)
     pigpig = client.get_user(id=693267245610303518)
+    startup_log(
+        f"on_ready: command_channel={bool(command_channel)} message_channel={bool(message_channel)} pigpig={bool(pigpig)}")
     await client.change_presence(activity=discord.Activity(
         name=" +help", type=discord.ActivityType.listening))
+    startup_log(f"on_ready: connected to Discord as {client.user}")
 
 
 def embed_from_rxn(reaction):
@@ -773,6 +807,9 @@ async def on_message(message):
                 f"**channel id:** `{message.channel.id}`\n"
                 f"```{message.content}```")
     elif message.author.id != 846977182383210506 and message.guild is not None:
+        if message_channel is None:
+            await client.process_commands(message)
+            return
         await message_channel.send(f"{message.author} - *{message.guild.name}*\n```{message.content}```")
     await client.process_commands(message)
 
