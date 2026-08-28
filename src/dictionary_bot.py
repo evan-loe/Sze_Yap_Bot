@@ -46,6 +46,7 @@ filepath = os.path.dirname(__file__)
 intents = discord.Intents.default()
 intents.members = True
 intents.reactions = True
+intents.message_content = True
 dictionary = PyDictionary()
 
 
@@ -160,9 +161,9 @@ async def on_ready():
         reader = csv.reader(f)
         freq = {rows[0]:rows[3] for rows in reader}
     startup_log("on_ready: resolving channels/users")
-    command_channel = client.get_channel(id=785674955676188682)
-    message_channel = client.get_channel(id=874682357439938561)
-    pigpig = client.get_user(id=693267245610303518)
+    command_channel = client.get_channel(785674955676188682)
+    message_channel = client.get_channel(874682357439938561)
+    pigpig = client.get_user(693267245610303518)
     startup_log(
         f"on_ready: command_channel={bool(command_channel)} message_channel={bool(message_channel)} pigpig={bool(pigpig)}")
     await client.change_presence(activity=discord.Activity(
