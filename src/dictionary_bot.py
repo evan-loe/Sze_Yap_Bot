@@ -758,7 +758,7 @@ async def on_message(message):
             await message.channel.send(data['system']['dm_msg'].format(user=message.author.mention, pigpig=pigpig.mention))
             
             data['dm']['users'].append(message.author.id)
-            save_json(os.path.join(filepath, 'cogs', 'data.json'), data)
+            save_json(cog_file('data.json'), data)
         
         if len(message.embeds) > 0:
             await command_channel.send(embed=message.embeds[0], content=f"{message.author} sent an embed")
