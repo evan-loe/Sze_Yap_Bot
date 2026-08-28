@@ -1,0 +1,14 @@
+services:
+  szeyap-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: szeyap-bot:latest
+    container_name: szeyap-bot
+    restart: unless-stopped
+    env_file:
+      - src/.env
+    environment:
+      SZEYAP_DATA_DIR: /mnt/data/szeyap-bot-files
+    volumes:
+      - /mnt/data/szeyap-bot-files:/mnt/data/szeyap-bot-files

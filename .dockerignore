@@ -1,0 +1,13 @@
+__pycache__/
+.venv/
+.venv-*/
+.git/
+.gitignore
+.DS_Store
+src/orig_audio/
+src/tones_audio/
+src/temp/
+src/cogs/temp/
+src/synonyms/
+src/.env
+*.pyc
